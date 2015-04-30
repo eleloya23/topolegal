@@ -62,9 +62,7 @@ Te preguntaras ¿Como agrego un estado? ¿Por donde empiezo?
 ### La explicación larga
 Necesitamos dos archivos. **boletines.rb** y **juzgados.rb**
 
-No importa si utilizas nokogori, mechanize, o la gema de tu preferencia para hacer el scrapping. Lo importante es que sigas el formato establecido por el ejemplo.
-
-Conserva el nombre de los modulos, conserva el nombre del metodo run, y conserva el nombre de las variables que estan ahí. Solo cambia el nombre de la clase al nombre del estado. E inyecta tu magia en el metodo run.
+No importa si utilizas nokogori, mechanize, o la gema de tu mama para hacer el scrapping. Lo importante es que sigas el formato establecido por el ejemplo.
 
 De **juzgados.rb** espero un resultado con el siguiente formato:
 ```ruby
