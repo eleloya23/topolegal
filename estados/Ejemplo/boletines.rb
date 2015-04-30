@@ -33,7 +33,7 @@ module Topolegal
 
         magia
 
-        @results << Expediente.new(estado: magia[:estado], juzgado: magia[:juzgado],
+        @results << Expediente.new(estado: $estado, juzgado: magia[:juzgado],
                                    fecha: @fecha.strftime('%d-%m-%Y'), expediente: magia[:expediente],
                                    descripcion: magia[:descripcion])
       end

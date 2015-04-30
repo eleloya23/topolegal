@@ -29,20 +29,20 @@ module Topolegal
         form['data[Boletin][txtbusqueda]'] = @fecha.strftime('%d-%m-%Y')
         form['data[Boletin][tipo]'] = 1
         options = form.fields[2].options
-        #options.each do |option|
-          form['data[Boletin][juzgado]'] = options[1].value
-          #puts "Procesando: #{options[1].text}"
+        options.each do |option|
+          form['data[Boletin][juzgado]'] = option.value
+          #puts "Procesando: #{option.text}"
           data = form.submit
           table = data.search('table.twelve')
           uls = table.search('ul.tabs-content')
           dls = uls.search('dl')
           dls.each do |dl|
             dd = dl.search('dd')
-            @results << Expediente.new(estado: $estado, juzgado: options[1].text,
+            @results << Expediente.new(estado: $estado, juzgado: option.text,
                                        fecha: @fecha.strftime('%d-%m-%Y'), expediente: dd[0].content.strip,
                                        descripcion: "#{dd[1].content.strip}, #{dd[2].content.strip}, #{dd[3].content.strip}")
           end
-        #end
+        end
       end
 
       def run
