@@ -5,7 +5,6 @@ Script para descargar los boletines judiciales en México.
 
 ## Pre-Requisitos
 ```bash
-gem install nokogiri
 gem install typhoeus
 gem install mechanize
 ```
