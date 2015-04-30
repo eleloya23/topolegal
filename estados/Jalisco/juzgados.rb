@@ -2,7 +2,7 @@
 #
 # De preferencia, que los saque de algun url (via scrapping).
 # Si no es posible (como en baja california que esta en flash). De manera manual en este mismo archivo
-# 
+#
 # Output:
 # ['JUZGADO PRIMERO DE LO CIVIL', 'JUZGADO SEGUNDO DE LO CIVIL', ....]
 module Topolegal
@@ -11,7 +11,7 @@ module Topolegal
       attr_reader :results
 
       def initialize
-        @results = "" 
+        @results = ""
         @endpoint = "http://cjj.gob.mx/consultas/boletin"
       end
 
@@ -26,15 +26,13 @@ module Topolegal
       end
 
       def run
-        endpoint = "http://cjj.gob.mx/consultas/boletin" 
-
         h = {
           'Accept' => 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
           'User-Agent' => 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_2) AppleWebKit/537.75.14 (KHTML, like Gecko) Version/7.0.3 Safari/537.75.14',
           'X-User-Agent' => 'TopoLegal/1.0 http://buzonlegal.com'
         }
 
-        req = Typhoeus::Request.new(endpoint, timeout: 60, headers: h)
+        req = Typhoeus::Request.new(@endpoint, timeout: 60, headers: h)
 
         req.on_complete do |response|
           if response.success?
@@ -51,4 +49,3 @@ module Topolegal
     end
   end
 end
-
