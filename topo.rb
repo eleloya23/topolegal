@@ -4,6 +4,7 @@
 require 'nokogiri'
 require 'typhoeus'
 require 'mechanize'
+require 'pry'
 require_relative 'lib/expediente'
 
 $acciones = %w{Juzgados Boletines}
