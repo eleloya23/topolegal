@@ -23,6 +23,26 @@ module Topolegal
 
         # Tu magia tiene que usar el url de @endpoint
 
+        page = Mechanize.new.get(@endpoint)
+
+        juzgados = page.search('/html/body/div/div/p/b/span/text()')
+
+        juzgados = juzgados.map { |j| j.content }.reject { |j| !j.match(/JUZGADO|MIXTO|TRIBUNAL/) }
+        # => ["H. TRIBUNAL SUPERIOR DE JUSTICIA DEL\r\nESTADO DE BAJA CALIFORNIA",
+        #     "JUZGADO\r\nPRIMERO CIVIL MEXICALI, B.C., 6 DE ABRIL DE 2015",
+        #     "JUZGADO\r\nSEGUNDO CIVIL MEXICALI, B.C., 6 DE ABRIL DE 2015"]
+
+        juzgados = juzgados.map { |x| x.gsub("\r\n", ' ') }
+        # => ["H. TRIBUNAL SUPERIOR DE JUSTICIA DEL ESTADO DE BAJA CALIFORNIA",
+        #     "JUZGADO PRIMERO CIVIL MEXICALI, B.C., 6 DE ABRIL DE 2015",
+        #     "JUZGADO SEGUNDO CIVIL MEXICALI, B.C., 6 DE ABRIL DE 2015"]
+
+        juzgados = juzgados.map { |x| x.split(", B.")[0] }
+        # => ["H. TRIBUNAL SUPERIOR DE JUSTICIA DEL ESTADO DE BAJA CALIFORNIA",
+        #     "JUZGADO PRIMERO CIVIL MEXICALI",
+        #     "JUZGADO SEGUNDO CIVIL MEXICALI"]
+
+        @results = juzgados
       end
     end
   end
