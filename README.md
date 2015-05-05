@@ -15,7 +15,8 @@ bundle install
 ./topo.rb estado:accion
 
 Estados:
- - BajaCalifornia
+ - BajaCaliforniaNorte
+ - BajaCaliforniaSur
  - Jalisco
 Acciones:
  - Juzgados, Boletines
