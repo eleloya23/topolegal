@@ -2,17 +2,11 @@
 
 Script para descargar los boletines judiciales en México.
 
-
-## Pre-Requisitos
-```bash
-gem install typhoeus
-gem install mechanize
-```
-
 ## Instalación
 
 ```bash
 git clone https://github.com/eleloya/topolegal.git
+bundle install
 ```
 
 ## Uso del script
