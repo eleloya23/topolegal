@@ -6,7 +6,7 @@
 # Output:
 # ['JUZGADO PRIMERO DE LO CIVIL', 'JUZGADO SEGUNDO DE LO CIVIL', ....]
 module Topolegal
-  module BajaCalifornia
+  module BajaCaliforniaNorte
     class Juzgados
       attr_reader :results
 

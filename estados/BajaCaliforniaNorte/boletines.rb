@@ -14,7 +14,7 @@
 require_relative 'juzgados.rb'
 
 module Topolegal
-  module BajaCalifornia
+  module BajaCaliforniaNorte
     class Boletines
       attr_reader :results
 
@@ -28,7 +28,7 @@ module Topolegal
       def run
         page = Mechanize.new.get(@endpoint)
 
-        j = Topolegal::BajaCalifornia::Juzgados.new
+        j = Topolegal::BajaCaliforniaNorte::Juzgados.new
         j.run
 
         juzgados = page.search("/html/body/div/div")

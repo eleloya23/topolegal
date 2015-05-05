@@ -44,7 +44,7 @@ if !$acciones.include? $accion
   usage
 end
 
-require_relative "estados/#{$estado}/#{$accion}.rb"
+require_relative "estados/#{$estado}/#{$accion.downcase}.rb"
 topo = eval("Topolegal::#{$estado}::#{$accion}").new
 
 topo.run
