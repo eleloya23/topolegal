@@ -1,0 +1,5 @@
+require 'nokogiri'
+require 'typhoeus'
+require 'mechanize'
+require 'pry'
+require 'csv'
