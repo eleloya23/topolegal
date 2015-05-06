@@ -25,7 +25,7 @@ module Topolegal
       def initialize
         @results = []
         # Por lo pronto el scrapper solo saca los boletines del dia anterior
-        @fecha = Date.new(2015,4,30)
+        @fecha = Date.today - 1
         @endpoint = 'http://www.tribunalbcs.gob.mx/listas.php'
       end
 
