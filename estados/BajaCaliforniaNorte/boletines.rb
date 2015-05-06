@@ -18,10 +18,10 @@ module Topolegal
     class Boletines
       attr_reader :results
 
-      def initialize(f = nil)
+      def initialize(f = Date.today - 1)
         @results = []
         # Por lo pronto el scrapper solo saca los boletines del dia anterior
-        @fecha = f ? f : Date.today - 1
+        @fecha = f
         @endpoint = 'http://www.pjbc.gob.mx/boletinj/2015/my_html/bc150408.htm'
       end
 

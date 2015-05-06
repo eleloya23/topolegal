@@ -22,10 +22,10 @@ module Topolegal
       MONTH_INDEX = { "ENERO" => 1, "FEBRERO" => 2  , "MARZO" => 3, "ABRIL" => 4, "MAYO" => 5, "JUNIO" => 6, "JULIO" => 7, "AGOSTO" => 8, "SEPTIEMBRE" => 9, "OCTUBRE" => 10, "NOVIEMBRE" => 11, "DICIEMBRE" => 12 }
       INNER_HALF_ENDPOINT = "http://e-tribunal.bcs.gob.mx/AccesoLibre/"
 
-      def initialize(f = nil)
+      def initialize(f = Date.today - 1)
         @results = []
         # Por lo pronto el scrapper solo saca los boletines del dia anterior
-        @fecha = f ? f : Date.today - 1
+        @fecha = f
         @endpoint = 'http://www.tribunalbcs.gob.mx/listas.php'
       end
 

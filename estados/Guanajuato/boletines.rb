@@ -10,8 +10,9 @@ module Topolegal
     class Boletines
       attr_reader :results
 
-      def initialize
+      def initialize(f = Date.today - 1)
         @results = []
+        @fecha = f
       end
 
       def parse_ciudades
@@ -30,15 +31,14 @@ module Topolegal
       end
 
       def parse_boletines
-        date = Date.today - 1
         @municipios_juzgado.each do |municipio, municipio_juzgado|
           municipio_juzgado[:juzgados].each do |juzgado|
             params = { cbomunicipio: "#{municipio}",
                        cbojuzgados: "#{juzgado[:id]}",
                        incluir2: '1',
-                       cbodia: "#{date.day}",
-                       cbomes: "#{date.month}",
-                       cboano: "#{date.year}"
+                       cbodia: "#{@fecha.day}",
+                       cbomes: "#{@fecha.month}",
+                       cboano: "#{@fecha.year}"
                      }
             page = Mechanize.new.post('http://www.poderjudicial-gto.gob.mx/modules.php?name=Acuerdos&file=buscar_acuerdos1', params)
             begin
@@ -46,7 +46,7 @@ module Topolegal
               trs = table.search('tr')[1..-1]
               trs.each do |tr|
                 tds = tr.search('td')
-                @results << Topolegal::Expediente.new(estado: $estado, juzgado: juzgado[:nombre], fecha: date.strftime('%d-%m-%Y'),
+                @results << Topolegal::Expediente.new(estado: $estado, juzgado: juzgado[:nombre], fecha: @fecha.strftime('%d-%m-%Y'),
                                                       expediente: "#{tds[0].content.strip}", descripcion: "#{tds[1].content.strip}, #{tds[2].content.strip}, #{tds[3].content.strip}")
               end
             rescue NoMethodError
