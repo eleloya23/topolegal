@@ -10,7 +10,7 @@ require 'csv'
 require_relative 'lib/expediente'
 
 $acciones = %w{Juzgados Boletines}
-$flags = %w{-output -destination}
+$flags = %w{-output -destination -date}
 # ['estados/Jalisco', 'estados/archivo.txt', 'estados-Baja-California']
 # ['estados/Jalisco', 'estados/Baja-California'
 # ['Jalisco', 'Baja-California']
@@ -28,6 +28,7 @@ Acciones:
 Opciones:
  * -output csv
  * -destination /path/to/file/
+ * -date YYYY/mm/dd
 EOF
   exit 1
 end
@@ -53,6 +54,7 @@ end
 config = {
   "output" => "",
   "destination" => "",
+  "date" => "",
 }
 
 (1..ARGV.count-1).step(2) do |i|
@@ -63,11 +65,21 @@ config = {
     config[flag[1..-1]] = arg
   else
     puts "Opcion invalida: #{flag}"
+    puts '-------------------------------------'
+    usage
   end
+
 end
 
 require_relative "estados/#{$estado}/#{$accion.downcase}.rb"
-topo = eval("Topolegal::#{$estado}::#{$accion}").new
+
+if $accion == "Juzgados" or config["date"] == ""
+  fecha = Date.today
+  topo = eval("Topolegal::#{$estado}::#{$accion}").new
+else
+  fecha = Date.strptime(config["date"],"%Y/%m/%d")
+  topo = eval("Topolegal::#{$estado}::#{$accion}").new(fecha)
+end
 
 topo.run
 
@@ -75,8 +87,8 @@ if $accion == 'Juzgados'
   puts topo.results
 elsif $accion =='Boletines'
   if config["output"] == "csv"
-    fecha = Date.today.strftime('%d-%m-%Y')
-    CSV.open("#{config['destination']}#{$estado}-#{fecha}.csv", "wb", { :col_sep => '|' }) do |csv|
+    fstr = fecha.strftime('%d-%m-%Y')
+    CSV.open("#{config['destination']}#{$estado}-#{fstr}.csv", "wb", { :col_sep => '|' }) do |csv|
       csv << ["Estado", "Juzgado", "Fecha", "Expediente", "Descripcion"]
       topo.results.each do |r|
         csv << ["#{r.estado}", "#{r.juzgado}", "#{r.fecha}", "#{r.expediente}", "#{r.descripcion}"]
