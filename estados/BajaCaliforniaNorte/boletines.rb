@@ -25,9 +25,12 @@ module Topolegal
         @endpoint = 'http://www.pjbc.gob.mx/boletinj/2015/my_html/bc150408.htm'
       end
 
+      def sanitize_string(string)
+        return string.encode('utf-8', 'binary', :invalid => :replace, :undef => :replace, :replace => '').gsub(/[\r\n]/, '')
+      end
+
       def run
         page = Mechanize.new.get(@endpoint)
-
         j = Topolegal::BajaCaliforniaNorte::Juzgados.new
         j.run
 
@@ -49,17 +52,17 @@ module Topolegal
             rows = tabla.xpath("tr/td[position()>last()-2]")
 
             (0..rows.count-1).step(2) do |n|
-              expediente = rows[n].search("*/text()").to_s
-              descripcion = rows[n+1].search("*/text()").to_s
+              expediente = sanitize_string(rows[n].search("*/text()").to_s)
+              descripcion = sanitize_string(rows[n+1].search("*/text()").to_s)
               @results << Expediente.new(estado: $estado, juzgado: j.results[k-1],
                                        fecha: @fecha.strftime('%d-%m-%Y'), expediente: expediente,
                                        descripcion: descripcion)
             end
           end
-
         end
 
       end
+
     end
   end
 end
