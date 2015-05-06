@@ -31,7 +31,7 @@ module Topolegal
         # Tu magia tiene que usar el url de @endpoints
         # asi como tambien la fecha de @fecha
 
-        magia
+        #magia
 
         @results << Expediente.new(estado: $estado, juzgado: magia[:juzgado],
                                    fecha: @fecha.strftime('%d-%m-%Y'), expediente: magia[:expediente],

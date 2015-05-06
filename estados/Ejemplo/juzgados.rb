@@ -23,7 +23,7 @@ module Topolegal
 
         # Tu magia tiene que usar el url de @endpoint
 
-        @results << magia
+        #@results << magia
       end
     end
   end
