@@ -41,4 +41,10 @@ end
   end
 end
 
-topo.run(estado, accion, config)
+logger = Topolegal::Logger.new(estado, config)
+
+begin
+  topo.run(estado, accion, config)
+rescue => e
+  logger.error 'El scrapper fallo'
+end

@@ -38,6 +38,8 @@ EOF
 
       scrapper.run
 
+      throw StandardError if scrapper.results.empty?
+      
       if accion == 'Juzgados'
         puts scrapper.results
       elsif  accion == 'Boletines'

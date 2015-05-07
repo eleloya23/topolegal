@@ -3,7 +3,8 @@ module Topolegal
     class Juzgados < Topolegal::Scrapper
 
       def initialize
-        super("http://www.pjbc.gob.mx/boletinj/2015/my_html/bc150408.htm")
+        f = Date.today - 1
+        super("http://www.pjbc.gob.mx/boletinj/#{f.year}/my_html/bc#{f.strftime('%y%m%d')}.htm")
       end
 
 
@@ -32,7 +33,7 @@ module Topolegal
         # => ["H. TRIBUNAL SUPERIOR DE JUSTICIA DEL ESTADO DE BAJA CALIFORNIA",
         #     "JUZGADO PRIMERO CIVIL MEXICALI",
         #     "JUZGADO SEGUNDO CIVIL MEXICALI"]
-        
+
         self.results = juzgados
       end
     end
