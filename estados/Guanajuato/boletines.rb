@@ -1,22 +1,13 @@
-# Proposito: Regresar un arreglo con todos los juzgados pertenecientes a un estado
-#
-# De preferencia, que los saque de algun url (via scrapping).
-# Si no es posible (como en baja california que esta en flash). De manera manual en este mismo archivo
-#
-# Output:
-# ['JUZGADO PRIMERO DE LO CIVIL', 'JUZGADO SEGUNDO DE LO CIVIL', ....]
 module Topolegal
   module Guanajuato
-    class Boletines
-      attr_reader :results
+    class Boletines < Topolegal::Scrapper
 
       def initialize(f = Date.today - 1)
-        @results = []
-        @fecha = f
+        super('http://www.poderjudicial-gto.gob.mx/includes/municipios.php', f)
       end
 
       def parse_ciudades
-        page = Mechanize.new.get('http://www.poderjudicial-gto.gob.mx/includes/municipios.php')
+        page = Mechanize.new.get(self.endpoint)
         array = page.body.split(',')
         @municipios = Hash[array.map { |m| m.split ':' }]
       end
@@ -36,9 +27,9 @@ module Topolegal
             params = { cbomunicipio: "#{municipio}",
                        cbojuzgados: "#{juzgado[:id]}",
                        incluir2: '1',
-                       cbodia: "#{@fecha.day}",
-                       cbomes: "#{@fecha.month}",
-                       cboano: "#{@fecha.year}"
+                       cbodia: "#{self.fecha.day}",
+                       cbomes: "#{self.fecha.month}",
+                       cboano: "#{self.fecha.year}"
                      }
             page = Mechanize.new.post('http://www.poderjudicial-gto.gob.mx/modules.php?name=Acuerdos&file=buscar_acuerdos1', params)
             begin
@@ -46,8 +37,9 @@ module Topolegal
               trs = table.search('tr')[1..-1]
               trs.each do |tr|
                 tds = tr.search('td')
-                @results << Topolegal::Expediente.new(estado: $estado, juzgado: juzgado[:nombre], fecha: @fecha.strftime('%d-%m-%Y'),
-                                                      expediente: "#{tds[0].content.strip}", descripcion: "#{tds[1].content.strip}, #{tds[2].content.strip}, #{tds[3].content.strip}")
+                expediente = "#{tds[0].content.strip}"
+                descripcion = "#{tds[1].content.strip}, #{tds[2].content.strip}, #{tds[3].content.strip}"
+                save_result('Guanajuato', juzgado[:nombre], expediente, descripcion)
               end
             rescue NoMethodError
               # Si no hay resultados se rescata la excepcion y seguimos adelante

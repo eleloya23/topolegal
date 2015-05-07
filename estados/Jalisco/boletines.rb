@@ -1,32 +1,15 @@
-# Proposito: Regresar un arreglo con todos los boletines pertenecientes a un estado
-#
-# De preferencia, que los saque de algun url (via scrapping).
-# Output:
-# [Expediente, Expediente, Expediente, ....]
-
-# [#<Topolegal::Expediente:0x007f859c93ec60
-#  @descripcion="MERCANTIL EJECUTIVO, CJWTC INMUEBLES, S.A. DE C.V. vs. GONZALEZ BUSTOS RAUL, Se ordena extraer del archivo",
-#  @estado="Jalisco",
-#  @expediente="1549/96",
-#  @fecha="29-04-2015",
-#  @juzgado="JUZGADO SEGUNDO DE LO CIVIL">, ...]
-
 module Topolegal
   module Jalisco
-    class Boletines
-      attr_reader :results
+    class Boletines < Topolegal::Scrapper
 
       def initialize(f = Date.today - 1)
-        @results = []
-        # Por lo pronto el scrapper solo saca los boletines del dia anterior
-        @fecha = f
-        @endpoint = 'http://cjj.gob.mx/consultas/boletin'
+        super('http://cjj.gob.mx/consultas/boletin', f)
       end
 
       def parse_boletines(html)
         form = html.forms.first
         # => "29-04-2015"
-        form['data[Boletin][txtbusqueda]'] = @fecha.strftime('%d-%m-%Y')
+        form['data[Boletin][txtbusqueda]'] = self.fecha.strftime('%d-%m-%Y')
         form['data[Boletin][tipo]'] = 1
         options = form.fields[2].options
         options.each do |option|
@@ -38,15 +21,16 @@ module Topolegal
           dls = uls.search('dl')
           dls.each do |dl|
             dd = dl.search('dd')
-            @results << Expediente.new(estado: $estado, juzgado: option.text,
-                                       fecha: @fecha.strftime('%d-%m-%Y'), expediente: dd[0].content.strip,
-                                       descripcion: "#{dd[1].content.strip}, #{dd[2].content.strip}, #{dd[3].content.strip}")
+            juzgado = option.text
+            expediente = dd[0].content.strip
+            descripcion  = "#{dd[1].content.strip}, #{dd[2].content.strip}, #{dd[3].content.strip}"
+            save_results('Jalisco', juzgado, expediente, descripcion)
           end
         end
       end
 
       def run
-        page = Mechanize.new.get(@endpoint)
+        page = Mechanize.new.get(self.endpoint)
         parse_boletines(page)
       end
     end

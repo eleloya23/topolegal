@@ -32,7 +32,7 @@ module Topolegal
         # => ["H. TRIBUNAL SUPERIOR DE JUSTICIA DEL ESTADO DE BAJA CALIFORNIA",
         #     "JUZGADO PRIMERO CIVIL MEXICALI",
         #     "JUZGADO SEGUNDO CIVIL MEXICALI"]
-
+        
         self.results = juzgados
       end
     end

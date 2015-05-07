@@ -7,15 +7,14 @@
 # ['JUZGADO PRIMERO DE LO CIVIL', 'JUZGADO SEGUNDO DE LO CIVIL', ....]
 module Topolegal
   module Guanajuato
-    class Juzgados
-      attr_reader :results
+    class Juzgados  < Topolegal::Scrapper
 
       def initialize
-        @results = []
+        super('http://www.poderjudicial-gto.gob.mx/includes/municipios.php')
       end
 
       def parse_ciudades
-        page = Mechanize.new.get('http://www.poderjudicial-gto.gob.mx/includes/municipios.php')
+        page = Mechanize.new.get(self.endpoint)
         array = page.body.split(',')
         @municipios = Hash[array.map { |m| m.split ':' }]
       end
@@ -24,9 +23,9 @@ module Topolegal
         juzgados = []
         @municipios.each do |municipio, value|
           page = Mechanize.new.get("http://www.poderjudicial-gto.gob.mx/includes/oficinas.php?municipio=#{municipio}")
-          juzgados << eval(page.body).map { |h| "#{h[:nombre]} #{value}" }  # convertir lo que regresan a un arreglo de hashes
+          juzgados << eval(page.body).map { |h| "#{h[:nombre]} #{value}" }[0] # convertir lo que regresan a un arreglo de hashes
         end
-        @results = juzgados.flatten
+        self.results = juzgados
       end
 
       def run

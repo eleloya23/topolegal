@@ -1,37 +1,18 @@
-# Proposito: Regresar un arreglo con todos los boletines pertenecientes a un estado
-#
-# De preferencia, que los saque de algun url (via scrapping).
-# Output:
-# [Expediente, Expediente, Expediente, ....]
-
-# [#<Topolegal::Expediente:0x007f859c93ec60
-#  @descripcion="MERCANTIL EJECUTIVO, CJWTC INMUEBLES, S.A. DE C.V. vs. GONZALEZ BUSTOS RAUL, Se ordena extraer del archivo",
-#  @estado="Jalisco",
-#  @expediente="1549/96",
-#  @fecha="29-04-2015",
-#  @juzgado="JUZGADO SEGUNDO DE LO CIVIL">, ...]
-
-require_relative 'juzgados.rb'
-
 module Topolegal
   module BajaCaliforniaSur
-    class Boletines
-      attr_reader :results
+    class Boletines <  Topolegal::Scrapper
 
       MONTH_NAMES = ["ENERO", "FEBRERO", "MARZO", "ABRIL", "MAYO", "JUNIO", "JULIO", "AGOSTO", "SEPTIEMBRE", "OCTUBRE", "NOVIEMBRE", "DICIEMBRE"]
       MONTH_INDEX = { "ENERO" => 1, "FEBRERO" => 2  , "MARZO" => 3, "ABRIL" => 4, "MAYO" => 5, "JUNIO" => 6, "JULIO" => 7, "AGOSTO" => 8, "SEPTIEMBRE" => 9, "OCTUBRE" => 10, "NOVIEMBRE" => 11, "DICIEMBRE" => 12 }
       INNER_HALF_ENDPOINT = "http://e-tribunal.bcs.gob.mx/AccesoLibre/"
 
       def initialize(f = Date.today - 1)
-        @results = []
-        # Por lo pronto el scrapper solo saca los boletines del dia anterior
-        @fecha = f
-        @endpoint = 'http://www.tribunalbcs.gob.mx/listas.php'
+        super('http://www.tribunalbcs.gob.mx/listas.php', f)
       end
 
       def run
         mech = Mechanize.new
-        page = mech.get(@endpoint)
+        page = mech.get(self.endpoint)
 
         j = Topolegal::BajaCaliforniaSur::Juzgados.new
         j.run
@@ -46,7 +27,7 @@ module Topolegal
             calendar_container = inner_page.search("//*[@id='Calendar1']/tr[1]/td")
             calendar_header = calendar_container.search("table/tr/td")
             calendar_month = calendar_header[1].text.split(" ")[0].upcase
-            month_diff = MONTH_INDEX[calendar_month] - @fecha.month
+            month_diff = MONTH_INDEX[calendar_month] - self.fecha.month
 
             while (month_diff != 0)
               par = []
@@ -63,15 +44,15 @@ module Topolegal
               calendar_container = inner_page.search("//*[@id='Calendar1']/tr[1]/td")
               calendar_header = calendar_container.search("table/tr/td")
               calendar_month = calendar_header[1].text.split(" ")[0].upcase
-              month_diff = MONTH_INDEX[calendar_month] - @fecha.month
+              month_diff = MONTH_INDEX[calendar_month] - self.fecha.month
             end
 
             page_links = inner_page.links
             day_params = nil
             page_links.each do |page_link|
-              if page_link.text == @fecha.day.to_s
+              if page_link.text == self.fecha.day.to_s
                 day_params = page_link.uri.to_s[/['].*[']/].gsub("'", "").split(",")
-                break;
+                break
               end
             end
 
@@ -87,9 +68,9 @@ module Topolegal
             files_data = inner_page.search("//table[@id='tblResultados']/tr")
             files_data.each do |file|
               tds = file.search("td")
-              @results << Expediente.new(estado: $estado, juzgado: j.results[i],
-                                       fecha: @fecha.strftime('%d-%m-%Y'), expediente: tds[1].search("span/text()").map{ |val| val.text}.join(" ").gsub(/[\n]+/, " "),
-                                       descripcion: tds[2].search("span/text()").map{ |val| val.text}.join(" ").gsub(/[\n]+/, " "))
+              expediente =  tds[1].search("span/text()").map{ |val| val.text}.join(" ").gsub(/[\n]+/, " ")
+              descripcion =    tds[2].search("span/text()").map{ |val| val.text}.join(" ").gsub(/[\n]+/, " ") 
+              save_result('BajaCaliforniaSur', j.results[i], expediente, descripcion)
             end
           else
             inner_mech = Mechanize.new
@@ -100,7 +81,7 @@ module Topolegal
             search_in_month = nil
 
             months.each do |month|
-              if month.search("tr[1]/td/div/strong/text()").text == MONTH_NAMES[@fecha.month - 1]
+              if month.search("tr[1]/td/div/strong/text()").text == MONTH_NAMES[self.fecha.month - 1]
                 search_in_month = month
                 break
               end
@@ -114,7 +95,7 @@ module Topolegal
 
             bulletin_page = nil
             available_days.each do |day|
-              if day.text == @fecha.day.to_s
+              if day.text == self.fecha.day.to_s
                 bulletin_page = Mechanize::Page::Link.new(day, inner_mech, inner_page).click
                 break
               end
@@ -127,12 +108,10 @@ module Topolegal
             bulletin_files = Nokogiri::HTML(bulletin_page.body).search("//table/tr")
 
             bulletin_files.each do |file|
-              resulting_tds = file.search("td")
-
-              @results << Expediente.new(estado: $estado, juzgado: j.results[i],
-                                       fecha: @fecha.strftime('%d-%m-%Y'), expediente: resulting_tds[0].text.gsub(/\s+/, ' '),
-                                       descripcion: "#{resulting_tds[1].text.gsub(/\s+/, ' ')}, #{resulting_tds[2].text.gsub(/\s+/, ' ')}")
-
+              resulting_tds = file.search('td')
+              expediente = resulting_tds[0].text.gsub(/\s+/, ' ')
+              descripcion =  "#{resulting_tds[1].text.gsub(/\s+/, ' ')}, #{resulting_tds[2].text.gsub(/\s+/, ' ')}"
+              save_result('BajaCaliforniaSur', j.results[i], expediente, descripcion)
             end
           end
         end

@@ -28,7 +28,7 @@ EOF
     end
 
     def run(estado, accion, config)
-      fecha = config['date'].nil? ? Date.today : Date.strptime(config['date'],'%Y/%m/%d')
+      fecha = config['date'].nil? ? (Date.today - 1) : Date.strptime(config['date'],'%Y/%m/%d')
 
       if accion == "Juzgados"
         scrapper = eval("Topolegal::#{estado}::#{accion}").new

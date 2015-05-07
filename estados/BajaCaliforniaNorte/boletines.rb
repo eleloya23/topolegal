@@ -3,7 +3,7 @@ module Topolegal
     class Boletines < Topolegal::Scrapper
 
       def initialize(f = Date.today - 1)
-        custom_uri = "http://www.pjbc.gob.mx/boletinj/#{f.year}/my_html/bc#{f.strftime('%y%d%m')}.htm"
+        custom_uri = "http://www.pjbc.gob.mx/boletinj/#{f.year}/my_html/bc#{f.strftime('%y%m%d')}.htm"
         super(custom_uri,f)
       end
 
@@ -31,11 +31,10 @@ module Topolegal
             rows = tabla.xpath("tr/td[position()>last()-2]")
 
             (0..rows.count-1).step(2) do |n|
-              expediente = sanitize_string(rows[n].search("*/text()").to_s)
-              descripcion = sanitize_string(rows[n+1].search("*/text()").to_s)
-              self.results << Expediente.new(estado: 'BajaCaliforniaNorte', juzgado: j.results[k-1],
-                                       fecha: @fecha.strftime('%d-%m-%Y'), expediente: expediente,
-                                       descripcion: descripcion)
+              expediente = rows[n].search("*/text()").to_s
+              descripcion = rows[n+1].search("*/text()").to_s
+
+              save_result('BajaCaliforniaNorte', j.results[k-1], expediente, descripcion)
             end
           end
         end
