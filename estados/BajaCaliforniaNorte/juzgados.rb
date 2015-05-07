@@ -1,18 +1,9 @@
-# Proposito: Regresar un arreglo con todos los juzgados pertenecientes a un estado
-#
-# De preferencia, que los saque de algun url (via scrapping).
-# Si no es posible (como en baja california que esta en flash). De manera manual en este mismo archivo
-#
-# Output:
-# ['JUZGADO PRIMERO DE LO CIVIL', 'JUZGADO SEGUNDO DE LO CIVIL', ....]
 module Topolegal
   module BajaCaliforniaNorte
-    class Juzgados
-      attr_reader :results
+    class Juzgados < Topolegal::Scrapper
 
       def initialize
-        @results = ""
-        @endpoint = "http://www.pjbc.gob.mx/boletinj/2015/my_html/bc150408.htm"
+        super("http://www.pjbc.gob.mx/boletinj/2015/my_html/bc150408.htm")
       end
 
 
@@ -23,7 +14,7 @@ module Topolegal
 
         # Tu magia tiene que usar el url de @endpoint
 
-        page = Mechanize.new.get(@endpoint)
+        page = Mechanize.new.get(self.endpoint)
 
         juzgados = page.search('/html/body/div/div/p/b/span/text()')
 
@@ -42,7 +33,7 @@ module Topolegal
         #     "JUZGADO PRIMERO CIVIL MEXICALI",
         #     "JUZGADO SEGUNDO CIVIL MEXICALI"]
 
-        @results = juzgados
+        self.results = juzgados
       end
     end
   end

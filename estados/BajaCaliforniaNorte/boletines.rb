@@ -1,36 +1,15 @@
-# Proposito: Regresar un arreglo con todos los boletines pertenecientes a un estado
-#
-# De preferencia, que los saque de algun url (via scrapping).
-# Output:
-# [Expediente, Expediente, Expediente, ....]
-
-# [#<Topolegal::Expediente:0x007f859c93ec60
-#  @descripcion="MERCANTIL EJECUTIVO, CJWTC INMUEBLES, S.A. DE C.V. vs. GONZALEZ BUSTOS RAUL, Se ordena extraer del archivo",
-#  @estado="Jalisco",
-#  @expediente="1549/96",
-#  @fecha="29-04-2015",
-#  @juzgado="JUZGADO SEGUNDO DE LO CIVIL">, ...]
-
-require_relative 'juzgados.rb'
-
 module Topolegal
   module BajaCaliforniaNorte
-    class Boletines
-      attr_reader :results
+    class Boletines < Topolegal::Scrapper
 
       def initialize(f = Date.today - 1)
-        @results = []
-        # Por lo pronto el scrapper solo saca los boletines del dia anterior
-        @fecha = f
-        @endpoint = 'http://www.pjbc.gob.mx/boletinj/2015/my_html/bc150408.htm'
-      end
-
-      def sanitize_string(string)
-        return string.encode('utf-8', 'binary', :invalid => :replace, :undef => :replace, :replace => '').gsub(/[\r\n]/, '')
+        custom_uri = "http://www.pjbc.gob.mx/boletinj/#{f.year}/my_html/bc#{f.strftime('%y%d%m')}.htm"
+        super(custom_uri,f)
       end
 
       def run
-        page = Mechanize.new.get(@endpoint)
+
+        page = Mechanize.new.get(self.endpoint)
         j = Topolegal::BajaCaliforniaNorte::Juzgados.new
         j.run
 
@@ -54,7 +33,7 @@ module Topolegal
             (0..rows.count-1).step(2) do |n|
               expediente = sanitize_string(rows[n].search("*/text()").to_s)
               descripcion = sanitize_string(rows[n+1].search("*/text()").to_s)
-              @results << Expediente.new(estado: $estado, juzgado: j.results[k-1],
+              self.results << Expediente.new(estado: 'BajaCaliforniaNorte', juzgado: j.results[k-1],
                                        fecha: @fecha.strftime('%d-%m-%Y'), expediente: expediente,
                                        descripcion: descripcion)
             end
